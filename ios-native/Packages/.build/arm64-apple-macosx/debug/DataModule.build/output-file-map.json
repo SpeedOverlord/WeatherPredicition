@@ -1,0 +1,23 @@
+{
+  "": {
+    "swift-dependencies": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/master.swiftdeps"
+  },
+  "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Mapper/WeatherForecastMapper.swift": {
+    "dependencies": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastMapper.d",
+    "object": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastMapper.swift.o",
+    "swiftmodule": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastMapper~partial.swiftmodule",
+    "swift-dependencies": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastMapper.swiftdeps"
+  },
+  "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Repository/WeatherRepositoryImpl.swift": {
+    "dependencies": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherRepositoryImpl.d",
+    "object": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherRepositoryImpl.swift.o",
+    "swiftmodule": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherRepositoryImpl~partial.swiftmodule",
+    "swift-dependencies": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherRepositoryImpl.swiftdeps"
+  },
+  "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/ResponseModel/WeatherForecastResponse.swift": {
+    "dependencies": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastResponse.d",
+    "object": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastResponse.swift.o",
+    "swiftmodule": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastResponse~partial.swiftmodule",
+    "swift-dependencies": "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastResponse.swiftdeps"
+  }
+}

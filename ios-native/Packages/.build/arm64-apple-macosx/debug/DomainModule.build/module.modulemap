@@ -1,0 +1,4 @@
+module DomainModule {
+    header "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DomainModule.build/DomainModule-Swift.h"
+    requires objc
+}
