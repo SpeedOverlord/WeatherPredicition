@@ -1,0 +1,13 @@
+CLAUDE.md
+.claude/
+.DS_Store
+
+# iOS
+ios-native/DerivedData/
+ios-native/Pods/
+ios-native/build/
+
+# Flutter
+flutter/.dart_tool/
+flutter/build/
+flutter/.flutter-plugin-dependencies
