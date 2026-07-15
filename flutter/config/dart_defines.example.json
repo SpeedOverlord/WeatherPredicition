@@ -1,0 +1,6 @@
+{
+  "//": "範本檔（此檔進版控）。複製為同目錄下的 dart_defines.json 並填入你自己的 CWA 授權碼。",
+  "//run": "flutter run --dart-define-from-file=config/dart_defines.json",
+  "//apply": "dart_defines.json 已被 .gitignore 排除，不會進版控。授權碼申請：https://opendata.cwa.gov.tw/",
+  "CWA_API_KEY": "YOUR_CWA_API_KEY_HERE"
+}
