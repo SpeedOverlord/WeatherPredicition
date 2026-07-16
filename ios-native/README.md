@@ -26,7 +26,7 @@ open weatherPrediction.xcworkspace
 ## Build / Test / Run
 
 ```bash
-# 單元測試（編譯 App + 執行 8 個 AC 測試）
+# 單元測試（編譯 App + 執行 10 個 AC 測試）
 xcodebuild test -workspace weatherPrediction.xcworkspace -scheme weatherPrediction \
   -configuration Debug -destination 'platform=iOS Simulator,name=iPhone 16'
 
@@ -67,7 +67,7 @@ ios-native/
 
 ## 測試
 
-`weatherPredictionTests/WeatherSearch/WeatherSearchViewModelTests.swift`：以 mock repository 驗證 AC-1..AC-9（Swift Testing），與 Flutter 端互為鏡像。
+`weatherPredictionTests/WeatherSearch/WeatherSearchViewModelTests.swift`：以 mock repository 驗證 AC-1..AC-10（Swift Testing），與 Flutter 端互為鏡像。
 
 ## 已實作功能
 

@@ -11,6 +11,8 @@ enum WeatherErrorMessage {
             return "資料格式不正確，請稍後再試"
         case .requestFailed:
             return "連線失敗，請檢查網路或稍後再試"
+        case .unauthorized:
+            return "授權失敗，請確認 API 授權碼"
         }
     }
 }

@@ -132,6 +132,17 @@ struct WeatherSearchViewModelTests {
         #expect(sut.state == .error(WeatherErrorMessage.text(for: .requestFailed)))
     }
 
+    // MARK: - AC-10：授權失敗（HTTP 401）→ 錯誤（與連線失敗分開）
+
+    @Test
+    func test_AC10_unauthorized_showsError() async {
+        let (sut, _) = makeSUT(result: .failure(WeatherError.unauthorized))
+
+        await sut.search(cityName: "臺北市")
+
+        #expect(sut.state == .error(WeatherErrorMessage.text(for: .unauthorized)))
+    }
+
     // MARK: - AC-8：唯一前綴自動補全（台北 → 臺北市）
 
     @Test

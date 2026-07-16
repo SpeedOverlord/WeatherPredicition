@@ -22,8 +22,11 @@ public final class WeatherRepositoryImpl: WeatherRepositoryProtocol {
         let data: Data
         do {
             data = try await client.data(for: request)
+        } catch APIError.unacceptableStatusCode(401) {
+            // 授權失敗單獨處理，方便辨識金鑰問題。
+            throw WeatherError.unauthorized
         } catch {
-            // 傳輸 / 非 2xx（含 401、5xx）皆歸為 requestFailed。
+            // 其餘傳輸 / 非 2xx（逾時、5xx 等）歸為 requestFailed。
             throw WeatherError.requestFailed
         }
 
