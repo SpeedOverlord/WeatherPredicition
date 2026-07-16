@@ -12,6 +12,7 @@
 |------|------|----------|--------|
 | 2026-07-15 | v1.0 | 初版建立 | Tim Chen |
 | 2026-07-15 | v1.1 | 空白輸入改為查詢全部縣市；輸入自動補全（`新北`→`新北市`、`台北`→`臺北市`）；前綴符合多個縣市時全部取得（`新竹`→新竹縣+新竹市）；氣象資料改為縣市清單顯示 | Tim Chen |
+| 2026-07-16 | v1.2 | 氣象資料清單改為**可收合卡片**（點縣市標題列展開／收合，展開時 3 時段三欄並排）；**每次搜尋一律收合**；卡片依天氣上底色、標題列用固定色；顏色/字體抽為 design system；iOS/Flutter 資料層改用可注入的 `APIClient`（base URL + 端點集中）。以上皆為 UI／內部重構，行為（AC-1..9）不變 | Tim Chen |
 
 ---
 
@@ -34,7 +35,8 @@
 
 - 顯示區塊在任一時刻只呈現一種狀態。
 - 讀取中為畫面內 inline 狀態（**非 Dialog** 行為）。
-- 氣象資料成功時，顯示**一或多個縣市的清單**，每個縣市含**今明 36 小時、共 3 個時段**的預報，每段含天氣現象、降雨機率、最低溫、最高溫、舒適度。
+- 氣象資料成功時，顯示**一或多個縣市的清單**；每個縣市為一張**可收合卡片**（點縣市標題列展開／收合），展開時顯示**今明 36 小時、共 3 個時段**、以**三欄並排**呈現，每段含天氣現象、降雨機率、最低溫、最高溫、舒適度。卡片依天氣上底色以利辨識趨勢；標題列用固定色（與天氣色區隔）。
+- **每次搜尋一律收合**（初始閉合），由使用者點標題列展開。展開狀態為暫時 UI 狀態，不影響資料行為。
 - 輸入解析（見流程）決定要顯示哪些縣市：空白 → 全部 22 縣市；輸入為某縣市名的前綴 → 所有符合的縣市（可能多個）。
 
 **有效縣市清單（22，hardcode 於 App）：** 宜蘭縣、花蓮縣、臺東縣、澎湖縣、金門縣、連江縣、臺北市、新北市、桃園市、臺中市、臺南市、高雄市、基隆市、新竹縣、新竹市、苗栗縣、彰化縣、南投縣、雲林縣、嘉義縣、嘉義市、屏東縣。
@@ -176,9 +178,12 @@
 | API 授權碼儲存（gitignored） | 未追蹤的 `.xcconfig`（值注入 Info.plist）於執行期讀入；版控留 `.example` 範本 | 未追蹤的 `--dart-define` / `.env`（build 時注入）；版控留 `.example` 範本 |
 | 四狀態顯示 | 顯示區塊以四種 UIView 子視圖切換（初始 / 讀取中 / 氣象 / 錯誤），依 ViewModel state 顯示對應一種 | **實作四個獨立 Widget** 表現四狀態（初始 / 讀取中 / 氣象 / 錯誤），依 Bloc state 切換顯示對應一種 |
 | 讀取中呈現 | inline 子視圖（**非 Dialog / 非 HUD 彈窗**） | inline Widget（**非 Dialog**） |
-| 氣象資料（縣市清單） | 以 **`UICollectionView` + Diffable Data Source**：**每個縣市一個 section**（header = 縣市名），section 內 3 個時段 cell | 以 `ListView` 排列縣市卡片，每個縣市內含縣市名 + 3 個時段 Widget |
+| 氣象資料（可收合卡片清單） | **`UICollectionView` + Diffable**：一個 section、每縣市一個 **`WeatherCityCell` 卡片**（靛藍標題列 + 展開時三欄 `WeatherPeriodColumnView`）。展開狀態存於 `WeatherContentView` 的 `expanded` 集合，新搜尋 `reconfigureItems` 全部重設收合 | `ListView` + 每縣市一張卡片 Widget（`InkWell` 標題列 + `IntrinsicHeight` 三欄）。展開狀態存於 `WeatherContentWidget`（容器），新搜尋 `didUpdateWidget` 清空收合 |
+| 展開狀態管理 | 狀態在容器（`WeatherContentView`）；每次搜尋一律收合；主題變更保留 | 狀態在容器（`WeatherContentWidget`）；每次搜尋一律收合；主題變更保留 |
+| 顏色 / 字體（design system） | `DesignSystem/AppColor` + `AppFont`；天氣底色 `AppColor.weatherBackground`、標題列 `AppColor.headerBar` | `core/theme/app_colors.dart` + `app_text_styles.dart`（鏡像同一組 token 與色值） |
 | 輸入解析（正規化 + 前綴補全） | 純函式 `CityNameResolver`（app target），內含 22 縣市清單；`resolve(input) -> [String]` 目標縣市名 | 純函式 `CityNameResolver`（presentation），鏡像同一份 22 清單與邏輯 |
-| 資料取得策略 | Repository `fetchAllForecasts() -> [WeatherForecastModel]`（取全部，不帶 locationName）；ViewModel 依目標過濾 | Repository `fetchAllForecasts() -> List<WeatherForecast>`；Cubit 依目標過濾 |
+| 資料取得策略 | Repository `fetchAllForecasts() -> [WeatherForecastModel]`（不帶 locationName）；ViewModel 依目標過濾 | Repository `fetchAllForecasts() -> List<WeatherForecast>`；Cubit 依目標過濾 |
+| 網路層（可注入 client） | `DataModule/Networking`：`APIClient` protocol + 預設 `URLSessionAPIClient` + `APIConfiguration`（baseURL/key）；端點 `WeatherEndpoint`。Repository 注入 `APIClient`，App 可覆寫 | `core/network`：`ApiClient` abstract + 預設 `DioApiClient` + `ApiConfiguration`；端點 `WeatherEndpoint`。Repository 注入 `ApiClient`，composition root 覆寫 |
 
 ---
 
