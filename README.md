@@ -49,9 +49,17 @@ weatherPrediction/
 - **前綴符合多個** → 全部取得：`新竹`→`新竹縣`+`新竹市`、`嘉義`→`嘉義縣`+`嘉義市`。
 - **無符合**（如 `火星市`）→ 查無城市錯誤。
 
-## 🔑 API 授權碼設定（必要）
+## 🚀 一鍵啟動（macOS）
 
-CWA `F-C0032-001` 需要授權碼，**授權碼不進版控**，各平台用一份 gitignored 檔案提供：
+```bash
+./run.sh
+```
+
+腳本會：**詢問 CWA 授權碼 → 自動建立兩平台 secrets 檔 → 開啟功能規格 HTML → 開兩台模擬器（`iPhone 16` 跑 iOS 原生、`iPhone 16 Pro` 跑 Flutter）並 build/執行**。需先安裝 Xcode 16+ 與 Flutter SDK。（腳本本身不含金鑰，執行時才詢問。）
+
+## 🔑 API 授權碼設定（手動，非必要）
+
+> 若不用 `run.sh`，可手動設定。CWA `F-C0032-001` 需要授權碼，**授權碼不進版控**，各平台用一份 gitignored 檔案提供：
 
 - iOS：`ios-native/weatherPrediction/Config/Secrets.xcconfig`（範本 `Secrets.example.xcconfig`）
 - Flutter：`flutter/config/dart_defines.json`（範本 `dart_defines.example.json`）
