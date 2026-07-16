@@ -27,7 +27,7 @@ cp config/dart_defines.example.json config/dart_defines.json
 # 靜態分析（零 warning）
 flutter analyze
 
-# 單元測試（8 個 AC 測試）
+# 單元測試（10 個 AC 測試）
 flutter test
 
 # 在模擬器 / 裝置執行（需帶入授權碼檔）
@@ -62,7 +62,7 @@ flutter/lib/
 
 ## 測試
 
-`test/features/weather_search/presentation/weather_search_cubit_test.dart`：以 `mocktail` mock repository + `bloc_test` 驗證 AC-1..AC-9，與 iOS 端互為鏡像。
+`test/features/weather_search/presentation/weather_search_cubit_test.dart`：以 `mocktail` mock repository + `bloc_test` 驗證 AC-1..AC-10，與 iOS 端互為鏡像。
 
 ## 已實作功能
 

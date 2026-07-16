@@ -150,6 +150,24 @@ void main() {
     ],
   );
 
+  // AC-10：授權失敗（HTTP 401）→ 錯誤（與連線失敗分開）
+  blocTest<WeatherSearchCubit, WeatherSearchState>(
+    'AC10 unauthorized shows error',
+    build: () {
+      when(() => repository.fetchAllForecasts())
+          .thenThrow(const WeatherException(WeatherErrorType.unauthorized));
+      return WeatherSearchCubit(repository);
+    },
+    act: (cubit) => cubit.search('臺北市'),
+    expect: () => [
+      const WeatherSearchState(status: WeatherSearchStatus.loading),
+      WeatherSearchState(
+        status: WeatherSearchStatus.error,
+        errorMessage: WeatherErrorMessage.text(WeatherErrorType.unauthorized),
+      ),
+    ],
+  );
+
   // AC-8：唯一前綴自動補全（台北 → 臺北市）
   blocTest<WeatherSearchCubit, WeatherSearchState>(
     'AC8 unique prefix autocompletes to one city',

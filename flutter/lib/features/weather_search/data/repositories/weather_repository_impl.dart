@@ -25,8 +25,11 @@ class WeatherRepositoryImpl implements WeatherRepository {
         '${configuration.baseUrl}/${WeatherEndpoint.thirtySixHourForecast}',
         queryParameters: {'Authorization': configuration.authorizationKey},
       );
-    } on ApiException {
-      // 傳輸 / 非 2xx（含 401、5xx）皆歸為 requestFailed。
+    } on ApiException catch (e) {
+      // 授權失敗（401）單獨處理，方便辨識金鑰問題；其餘傳輸 / 5xx 歸為 requestFailed。
+      if (e.type == ApiErrorType.unacceptableStatusCode && e.statusCode == 401) {
+        throw const WeatherException(WeatherErrorType.unauthorized);
+      }
       throw const WeatherException(WeatherErrorType.requestFailed);
     }
 

@@ -6,8 +6,11 @@ enum WeatherErrorType {
   /// API 回應無法解析 / 缺必要欄位（流程 2c）。
   invalidData,
 
-  /// 網路中斷 / 逾時 / 授權失敗(401) / 伺服器錯誤(5xx)（流程 2d）。
+  /// 網路中斷 / 逾時 / 伺服器錯誤(5xx)（流程 2d）。
   requestFailed,
+
+  /// 授權失敗：HTTP 401（授權碼無效 / 未帶）（流程 2e）。
+  unauthorized,
 }
 
 /// Repository 對外拋出的天氣錯誤。
