@@ -13,6 +13,7 @@
 | 2026-07-15 | v1.0 | 初版建立 | Tim Chen |
 | 2026-07-15 | v1.1 | 空白輸入改為查詢全部縣市；輸入自動補全（`新北`→`新北市`、`台北`→`臺北市`）；前綴符合多個縣市時全部取得（`新竹`→新竹縣+新竹市）；氣象資料改為縣市清單顯示 | Tim Chen |
 | 2026-07-16 | v1.2 | 氣象資料清單改為**可收合卡片**（點縣市標題列展開／收合，展開時 3 時段三欄並排）；**每次搜尋一律收合**；卡片依天氣上底色、標題列用固定色；顏色/字體抽為 design system；iOS/Flutter 資料層改用可注入的 `APIClient`（base URL + 端點集中）。以上皆為 UI／內部重構，行為（AC-1..9）不變 | Tim Chen |
+| 2026-07-16 | v1.3 | **HTTP 401 授權失敗獨立為單獨錯誤**（流程 2e / AC-10），與網路/伺服器錯誤（連線失敗）分開，方便辨識金鑰問題；兩平台新增 `unauthorized` 錯誤與對應訊息、測試 | Tim Chen |
 
 ---
 
@@ -67,7 +68,8 @@
 
 - **2b — 查無城市**：非空輸入正規化後**不符合任何有效縣市前綴**（例：`火星市`）→ 顯示**錯誤狀態**（提示：查無此城市，請確認名稱）。（可於用戶端判定，不需呼叫 API。）
 - **2c — 資料格式不正確**：API 回應無法解析為預期結構，或缺少必要欄位 → 顯示**錯誤狀態**（提示：資料格式不正確），程式不崩潰。
-- **2d — 網路 / 伺服器錯誤**：網路中斷、逾時、HTTP 401（授權失敗）、HTTP 5xx → 顯示**錯誤狀態**（對應錯誤字串），程式不崩潰。
+- **2d — 網路 / 伺服器錯誤**：網路中斷、逾時、HTTP 5xx → 顯示**錯誤狀態**（提示：連線失敗），程式不崩潰。
+- **2e — 授權失敗**：HTTP 401（授權碼無效 / 未帶）→ 顯示**錯誤狀態**（提示：授權失敗，請確認 API 授權碼），程式不崩潰。與網路錯誤分開，方便辨識金鑰問題。
 
 ### WeatherSearch - 邊界條件
 
@@ -127,8 +129,8 @@
 |---|---|---|
 | 用戶端過濾後無符合縣市（無效輸入） | 2b | 查無城市 → 錯誤狀態 |
 | HTTP 200 + 無法解析 / 缺必要欄位 | 2c | 資料格式錯誤 → 錯誤狀態，不崩潰 |
-| HTTP 401 | 2d | 授權失敗 → 錯誤狀態 |
-| 網路中斷 / 逾時 / HTTP 5xx | 2d | 網路 / 伺服器錯誤 → 錯誤狀態，不崩潰 |
+| 網路中斷 / 逾時 / HTTP 5xx | 2d | 連線失敗 → 錯誤狀態，不崩潰 |
+| HTTP 401 | 2e | 授權失敗（**單獨錯誤**）→ 錯誤狀態，不崩潰 |
 
 ---
 
@@ -145,9 +147,10 @@
 | AC-4 | 輸入為空或 trim 後為純空白、API 回傳全部縣市 | 點確認 | 呈現**氣象資料狀態**：清單含**全部 22 個縣市** |
 | AC-5 | 非空輸入正規化後不符任何有效縣市前綴（如「火星市」） | 點確認 | 呈現**錯誤狀態**（查無此城市），且**未呼叫 API** |
 | AC-6 | API 回應無法解析 / 缺必要欄位 | 點確認 | 呈現**錯誤狀態**（資料格式不正確），不崩潰 |
-| AC-7 | API 請求失敗（網路中斷 / 401 / 5xx） | 點確認 | 呈現**錯誤狀態**（對應錯誤字串），不崩潰 |
+| AC-7 | API 請求失敗（網路中斷 / 逾時 / 5xx） | 點確認 | 呈現**錯誤狀態**（連線失敗），不崩潰 |
 | AC-8 | 輸入部分名稱或以「台」書寫、前綴**唯一**符合（如「台北」） | 點確認 | 自動補全為「臺北市」，清單含**該 1 個縣市** |
 | AC-9 | 輸入部分名稱、前綴符合**多個**縣市（如「新竹」） | 點確認 | 清單含**所有符合縣市**（新竹縣 + 新竹市） |
+| AC-10 | API 回傳 HTTP 401（授權碼無效） | 點確認 | 呈現**錯誤狀態**（授權失敗，與連線失敗**分開**），不崩潰 |
 
 ### AC × 平台覆蓋矩陣（由 /write-unit-tests 填寫）
 
@@ -162,8 +165,9 @@
 | AC-7 | `test_AC7_requestFailed_showsError` | `AC7 request failed shows error` |
 | AC-8 | `test_AC8_uniquePrefix_autocompletesToOneCity` | `AC8 unique prefix autocompletes to one city` |
 | AC-9 | `test_AC9_multiPrefix_showsAllMatchingCities` | `AC9 multi prefix shows all matching cities` |
+| AC-10 | `test_AC10_unauthorized_showsError` | `AC10 unauthorized shows error` |
 
-**測試位置：** iOS `ios-native/weatherPredictionTests/WeatherSearch/WeatherSearchViewModelTests.swift`；Flutter `flutter/test/features/weather_search/presentation/weather_search_cubit_test.dart`。兩平台各 9 個測試，行為互為鏡像。
+**測試位置：** iOS `ios-native/weatherPredictionTests/WeatherSearch/WeatherSearchViewModelTests.swift`；Flutter `flutter/test/features/weather_search/presentation/weather_search_cubit_test.dart`。兩平台各 10 個測試，行為互為鏡像。
 
 > 每格恰一個測試，無空格（漏測）、無重複（冗餘）。
 

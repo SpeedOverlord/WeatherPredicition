@@ -178,7 +178,7 @@
     <h1>天氣搜尋 WeatherSearch</h1>
     <p class="lede">輸入城市名稱，串接中央氣象署「一般天氣預報－今明 36 小時天氣預報」，於同一畫面以四種狀態呈現一或多個縣市的預報。同一份規格同時驅動 iOS（MVVM-C）與 Flutter（Bloc）。</p>
     <div class="meta">
-      <span class="tag v">v1.2</span>
+      <span class="tag v">v1.3</span>
       <span class="tag"><code>F-C0032-001</code></span>
       <span class="tag">22 縣市</span>
       <span class="tag">AC-1 ～ AC-9</span>
@@ -388,8 +388,15 @@
         <div class="ek">requestFailed</div>
         <div class="et">連線 / 伺服器錯誤</div>
         <div class="msg">連線失敗，請檢查網路或稍後再試</div>
-        <p class="cause">網路中斷、逾時、HTTP 401（授權失敗）、HTTP 5xx。程式不崩潰。</p>
+        <p class="cause">網路中斷、逾時、HTTP 5xx。程式不崩潰。</p>
         <span class="ac">↳ AC-7</span>
+      </div>
+      <div class="errc" style="--c: var(--err)">
+        <div class="ek">unauthorized</div>
+        <div class="et">授權失敗（HTTP 401，單獨）</div>
+        <div class="msg">授權失敗，請確認 API 授權碼</div>
+        <p class="cause">授權碼無效 / 未帶。與連線失敗<b>分開</b>，方便辨識金鑰問題。程式不崩潰。</p>
+        <span class="ac">↳ AC-10</span>
       </div>
     </div>
   </section>
@@ -433,9 +440,10 @@
       <div class="ac eok"><span class="id">AC-4</span><span class="txt">空白輸入 → 清單顯示<b>全部 22 縣市</b>。</span></div>
       <div class="ac eerr"><span class="id">AC-5</span><span class="txt">無符合輸入（<b>火星市</b>）→ <b>查無城市</b>，且未呼叫 API。</span></div>
       <div class="ac eerr"><span class="id">AC-6</span><span class="txt">API 無法解析 / 缺欄位 → <b>資料格式不正確</b>，不崩潰。</span></div>
-      <div class="ac eerr"><span class="id">AC-7</span><span class="txt">請求失敗（網路 / 401 / 5xx）→ <b>連線失敗</b>，不崩潰。</span></div>
+      <div class="ac eerr"><span class="id">AC-7</span><span class="txt">請求失敗（網路 / 逾時 / 5xx）→ <b>連線失敗</b>，不崩潰。</span></div>
       <div class="ac eok"><span class="id">AC-8</span><span class="txt">唯一前綴（<b>台北</b>）→ 自動補全為臺北市，清單 1 筆。</span></div>
       <div class="ac eok"><span class="id">AC-9</span><span class="txt">多重前綴（<b>新竹</b>）→ 顯示<b>新竹縣 + 新竹市</b>。</span></div>
+      <div class="ac eerr"><span class="id">AC-10</span><span class="txt">HTTP <b>401</b>（授權碼無效）→ <b>授權失敗</b>（與連線失敗分開），不崩潰。</span></div>
     </div>
   </section>
 
@@ -482,7 +490,7 @@
   </section>
 
   <footer>
-    <span>來源：<code>shared-spec/WeatherSearch/spec.md</code>（v1.2）</span>
+    <span>來源：<code>shared-spec/WeatherSearch/spec.md</code>（v1.3）</span>
     <span>端點 <code>F-C0032-001</code></span>
     <span>iOS MVVM-C + Clean · Flutter Bloc + Clean</span>
   </footer>
