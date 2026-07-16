@@ -38,25 +38,31 @@ flutter run --dart-define-from-file=config/dart_defines.json
 
 ```
 flutter/lib/
-├── main.dart                         # 讀入 CWA_API_KEY，建立 MaterialApp.router
-├── router/app_router.dart            # GoRouter（≈ Coordinator）+ composition root（BlocProvider 注入）
+├── main.dart                         # 讀入 CWA_API_KEY，建立 MaterialApp.router（含 light/dark theme）
+├── core/
+│   ├── network/                      # ApiClient(abstract) / DioApiClient / ApiConfiguration
+│   └── theme/                        # app_colors.dart / app_text_styles.dart（顏色・字體 tokens）
+├── router/app_router.dart            # GoRouter（≈ Coordinator）+ composition root（注入 client/config + BlocProvider）
 └── features/weather_search/
     ├── domain/                       # entities（WeatherForecast/WeatherPeriod）、WeatherRepository（abstract）、WeatherException
-    ├── data/                         # WeatherForecastResponse(fromJson)、Mapper、WeatherRepositoryImpl（dio）
+    ├── data/                         # WeatherForecastResponse(fromJson)、Mapper、WeatherEndpoint、WeatherRepositoryImpl（注入 ApiClient）
     └── presentation/
-        ├── cubit/                    # WeatherSearchCubit + State（四狀態）+ WeatherErrorMessage
+        ├── cubit/                    # WeatherSearchCubit + State（四狀態）+ WeatherErrorMessage + CityNameResolver
         ├── pages/weather_search_page.dart
-        └── widgets/                  # 四個狀態 Widget：Initial / Loading / Content / Error
+        └── widgets/                  # 四狀態 Widget（Initial/Loading/Content/Error）+ 卡片清單 + WeatherStyle
 ```
 
 - **Cubit（≈ ViewModel）**：`WeatherSearchCubit` 只依賴 abstract `WeatherRepository`（constructor 注入），emit immutable 的 `WeatherSearchState`（`status` enum：initial / loading / loaded / error），不 import `material.dart`、不碰 `BuildContext`。
 - **四狀態 Widget**：`WeatherSearchPage` 以 `BlocBuilder` 依 `state.status` 切換四個獨立 Widget；讀取中為 inline（非 Dialog）。
-- **導覽 / DI**：`router/app_router.dart` 為 composition root，`GoRoute.builder` 建立 `WeatherRepositoryImpl` → `WeatherSearchCubit` 並以 `BlocProvider` 注入。
+- **氣象資料清單**：`ListView` + 每縣市一張**可收合卡片**（`InkWell` 靛藍標題列 + 展開時 `IntrinsicHeight` 三欄，依天氣上底色）。展開狀態存於 `WeatherContentWidget`（容器），每次搜尋一律收合。
+- **Design System**：顏色 / 字體集中於 `core/theme/app_colors.dart`、`app_text_styles.dart`（與 iOS 對齊）。
+- **網路層**：`core/network` 的 `ApiClient`（abstract）+ 預設 `DioApiClient` + `ApiConfiguration`；端點集中於 `WeatherEndpoint`。`WeatherRepositoryImpl` 依賴抽象 `ApiClient`（可測試 / composition root 覆寫）。
+- **導覽 / DI**：`router/app_router.dart` 為 composition root，`GoRoute.builder` 注入 `DioApiClient` + `ApiConfiguration` → `WeatherRepositoryImpl` → `WeatherSearchCubit`（`BlocProvider`）。
 - **Clean 分層**：`presentation → domain`、`data → domain`；presentation 不直接依賴 data（透過 abstract repository）。
 
 ## 測試
 
-`test/features/weather_search/presentation/weather_search_cubit_test.dart`：以 `mocktail` mock repository + `bloc_test` 驗證 AC-1..AC-8，與 iOS 端互為鏡像。
+`test/features/weather_search/presentation/weather_search_cubit_test.dart`：以 `mocktail` mock repository + `bloc_test` 驗證 AC-1..AC-9，與 iOS 端互為鏡像。
 
 ## 已實作功能
 
