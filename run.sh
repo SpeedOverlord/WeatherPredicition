@@ -60,37 +60,37 @@ info "開啟功能規格 HTML…"
 open "$ROOT/shared-spec/WeatherSearch/spec.html" || warn "無法開啟 spec.html"
 
 # ── 4. 啟動兩台模擬器 ───────────────────────────────────────
-info "啟動模擬器：$IOS_SIM（native）、$FLUTTER_SIM（flutter）…"
+info "啟動模擬器：${IOS_SIM}（native）、${FLUTTER_SIM}（flutter）…"
 open -a Simulator
-IOS_UDID="$(udid_for "$IOS_SIM")"
-FLUTTER_UDID="$(udid_for "$FLUTTER_SIM")"
-[ -n "$IOS_UDID" ]     || { echo "找不到模擬器：$IOS_SIM"; exit 1; }
-[ -n "$FLUTTER_UDID" ] || { echo "找不到模擬器：$FLUTTER_SIM"; exit 1; }
+IOS_UDID="$(udid_for "${IOS_SIM}")"
+FLUTTER_UDID="$(udid_for "${FLUTTER_SIM}")"
+[ -n "$IOS_UDID" ]     || { echo "找不到模擬器：${IOS_SIM}"; exit 1; }
+[ -n "$FLUTTER_UDID" ] || { echo "找不到模擬器：${FLUTTER_SIM}"; exit 1; }
 xcrun simctl boot "$IOS_UDID"     2>/dev/null || true
 xcrun simctl boot "$FLUTTER_UDID" 2>/dev/null || true
 
-# ── 5. Build + 跑 iOS 原生（在 $IOS_SIM）─────────────────────
+# ── 5. Build + 跑 iOS 原生（在 ${IOS_SIM}）─────────────────────
 info "編譯 iOS 原生（首次較久）…"
 cd "$ROOT/ios-native"
 xcodebuild build -quiet \
   -workspace weatherPrediction.xcworkspace \
   -scheme weatherPrediction \
   -configuration Debug \
-  -destination "platform=iOS Simulator,name=$IOS_SIM" \
+  -destination "platform=iOS Simulator,name=${IOS_SIM}" \
   -derivedDataPath build/DD
 APP="$(find build/DD/Build/Products/Debug-iphonesimulator -maxdepth 1 -name '*.app' | head -1)"
 [ -n "$APP" ] || { echo "找不到編譯後的 .app"; exit 1; }
 xcrun simctl install "$IOS_UDID" "$APP"
 xcrun simctl launch "$IOS_UDID" "$BUNDLE_ID" >/dev/null
-ok "iOS 原生已在「$IOS_SIM」啟動"
+ok "iOS 原生已在「${IOS_SIM}」啟動"
 
-# ── 6. Build + 跑 Flutter（在 $FLUTTER_SIM，前景 attach）────
+# ── 6. Build + 跑 Flutter（在 ${FLUTTER_SIM}，前景 attach）────
 info "取得 Flutter 依賴…"
 cd "$ROOT/flutter"
 flutter pub get >/dev/null
 
 echo ""
-ok "iOS 原生執行中（$IOS_SIM）。接著在「$FLUTTER_SIM」啟動 Flutter…"
+ok "iOS 原生執行中（${IOS_SIM}）。接著在「${FLUTTER_SIM}」啟動 Flutter…"
 echo "  （Flutter 會 attach 在此終端機：r 熱重載、R 熱重啟、q 結束）"
 echo ""
 exec flutter run -d "$FLUTTER_UDID" --dart-define-from-file=config/dart_defines.json
