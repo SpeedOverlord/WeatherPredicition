@@ -89,7 +89,7 @@ flutter test
 本專案在開發過程中使用 **Anthropic 的 Claude（透過 Claude Code）** 協助開發。使用方式：
 
 - **規格（SDD）**：依作業需求與 CWA API 實際回應，整理出平台中立的 `shared-spec/WeatherSearch/spec.md`（含驗收條件 AC-1..AC-8）。
-- **測試先行（TDD）**：依 AC 清單，為兩平台各產生單元測試並先跑出紅燈。
+- **測試先行（TDD）**：依 AC 清單，為兩平台各產生單元測試並通過測試。
 - **實作**：依 spec 完成 iOS（MVVM-C + Clean）與 Flutter（Bloc + Clean）兩邊實作至測試全綠。
 - **Code Review 與文件**：協助自我審查（架構合規、避免過度設計、跨平台一致性）與撰寫本說明文件。
 
