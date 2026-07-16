@@ -6,8 +6,18 @@ CLAUDE.md
 ios-native/DerivedData/
 ios-native/Pods/
 ios-native/build/
+ios-native/Packages/.build/
+ios-native/**/.swiftpm/
+ios-native/**/xcuserdata/
+ios-native/*.xcodeproj/project.xcworkspace/xcuserdata/
+
+# iOS secrets (授權碼不進版控；範本見 Secrets.example.xcconfig)
+ios-native/weatherPrediction/Config/Secrets.xcconfig
 
 # Flutter
 flutter/.dart_tool/
 flutter/build/
 flutter/.flutter-plugin-dependencies
+
+# Flutter secrets (授權碼不進版控；範本見 dart_defines.example.json)
+flutter/config/dart_defines.json

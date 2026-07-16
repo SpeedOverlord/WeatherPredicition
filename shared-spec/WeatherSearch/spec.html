@@ -1,0 +1,499 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>天氣搜尋規格 · WeatherSearch</title>
+<style>
+  :root {
+    --bg: #f6f8fb;
+    --surface: #ffffff;
+    --surface-2: #eef2f7;
+    --ink: #16232f;
+    --muted: #5c6b7a;
+    --faint: #8593a2;
+    --line: #dbe3ec;
+    --accent: #2f74c0;
+    --lane-view: #6b7a8c;
+    --lane-logic: #2f74c0;
+    --lane-data: #128a86;
+    --ok: #2e9e6b;
+    --warn: #c17d12;
+    --err: #d1495b;
+    --shadow: 0 1px 2px rgba(20,35,50,.06), 0 6px 20px rgba(20,35,50,.06);
+    --radius: 12px;
+    --maxw: 1080px;
+    --mono: ui-monospace, "SF Mono", "JetBrains Mono", Menlo, Consolas, monospace;
+    --sans: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", system-ui, -apple-system, "Segoe UI", sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0e151c;
+      --surface: #151f29;
+      --surface-2: #1b2733;
+      --ink: #e7eef5;
+      --muted: #96a6b6;
+      --faint: #6f8090;
+      --line: #263340;
+      --accent: #5aa0e6;
+      --lane-view: #93a3b3;
+      --lane-logic: #5aa0e6;
+      --lane-data: #33b3ad;
+      --ok: #43b783;
+      --warn: #e0a13c;
+      --err: #e26a7a;
+      --shadow: 0 1px 2px rgba(0,0,0,.3), 0 8px 24px rgba(0,0,0,.28);
+    }
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--sans);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+  }
+  .wrap { max-width: var(--maxw); margin: 0 auto; padding: 40px 24px 72px; }
+
+  header.head { margin-bottom: 40px; }
+  .eyebrow {
+    font-size: 12px; letter-spacing: .18em; text-transform: uppercase;
+    color: var(--accent); font-weight: 700; margin: 0 0 10px;
+  }
+  h1 {
+    font-size: clamp(30px, 5vw, 46px); line-height: 1.08; margin: 0 0 14px;
+    font-weight: 800; letter-spacing: -.01em; text-wrap: balance;
+  }
+  .lede { font-size: 17px; color: var(--muted); max-width: 60ch; margin: 0; }
+  .meta { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 20px; }
+  .tag {
+    font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px;
+    background: var(--surface-2); color: var(--muted); border: 1px solid var(--line);
+  }
+  .tag.v { color: var(--accent); border-color: color-mix(in srgb, var(--accent) 35%, var(--line)); }
+  .tag code { font-family: var(--mono); font-size: 12px; }
+
+  section { margin-top: 52px; }
+  .sec-head { display: flex; align-items: baseline; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+  .sec-head h2 { font-size: 21px; font-weight: 800; margin: 0; letter-spacing: -.01em; }
+  .sec-head .n { font-family: var(--mono); font-size: 13px; color: var(--faint); font-weight: 600; letter-spacing: .04em; }
+  .sec-head p { margin: 0; color: var(--muted); font-size: 14px; }
+
+  .states { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 14px; }
+  .state { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); padding: 16px 16px 15px; box-shadow: var(--shadow); position: relative; overflow: hidden; }
+  .state::before { content: ""; position: absolute; inset: 0 auto 0 0; width: 4px; background: var(--c); }
+  .state .st-k { font-size: 12px; font-family: var(--mono); color: var(--faint); letter-spacing: .03em; }
+  .state .st-t { font-size: 16px; font-weight: 700; margin: 3px 0 4px; }
+  .state .st-d { font-size: 13px; color: var(--muted); line-height: 1.5; }
+
+  .lane-scroll { overflow-x: auto; padding-bottom: 6px; }
+  .swim { min-width: 760px; }
+  .lane-cols { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 18px; position: sticky; top: 0; z-index: 3; padding: 4px 0 10px; background: var(--bg); }
+  .lane-h { text-align: center; padding: 11px 10px; border-radius: 10px; font-weight: 700; font-size: 14.5px; color: #fff; letter-spacing: .01em; }
+  .lane-h small { display: block; font-weight: 500; font-size: 11.5px; opacity: .9; letter-spacing: .02em; margin-top: 1px; }
+  .lane-h.view { background: var(--lane-view); }
+  .lane-h.logic { background: var(--lane-logic); }
+  .lane-h.data { background: var(--lane-data); }
+
+  .step { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0 18px; }
+  .slot { position: relative; min-height: 8px; }
+  .slot::before { content: ""; position: absolute; top: 0; bottom: 0; left: 50%; width: 2px; transform: translateX(-50%); background: var(--rail); opacity: .28; }
+  .slot.view { --rail: var(--lane-view); }
+  .slot.logic { --rail: var(--lane-logic); }
+  .slot.data { --rail: var(--lane-data); }
+
+  .node { position: relative; z-index: 1; margin: 9px 4px; background: var(--surface); border: 1px solid var(--line); border-radius: 11px; padding: 13px 15px 14px; box-shadow: var(--shadow); border-left: 4px solid var(--c); }
+  .node .num { position: absolute; top: -11px; left: 12px; width: 23px; height: 23px; border-radius: 50%; background: var(--c); color: #fff; font-family: var(--mono); font-size: 12px; font-weight: 700; display: grid; place-items: center; box-shadow: 0 0 0 3px var(--surface); }
+  .node .nt { font-weight: 700; font-size: 14.5px; margin: 4px 0 0; }
+  .node .nd { font-size: 12.8px; color: var(--muted); margin: 5px 0 0; line-height: 1.5; }
+  .node .nd code, .inline-code { font-family: var(--mono); font-size: 12px; background: var(--surface-2); padding: 1px 5px; border-radius: 5px; }
+  .view .node { --c: var(--lane-view); }
+  .logic .node { --c: var(--lane-logic); }
+  .data .node { --c: var(--lane-data); }
+
+  .branches { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .br { font-size: 11.5px; font-weight: 600; padding: 3px 9px; border-radius: 7px; border: 1px solid var(--bc); color: var(--bc); background: color-mix(in srgb, var(--bc) 9%, transparent); display: inline-flex; align-items: center; gap: 5px; }
+  .br.ok { --bc: var(--ok); }
+  .br.err { --bc: var(--err); }
+  .br.neutral { --bc: var(--faint); }
+  .br b { font-weight: 800; }
+
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); overflow: hidden; }
+  .tbl-scroll { overflow-x: auto; }
+  table { border-collapse: collapse; width: 100%; font-size: 14px; }
+  th, td { text-align: left; padding: 12px 16px; border-bottom: 1px solid var(--line); vertical-align: top; }
+  th { font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--faint); font-weight: 700; background: var(--surface-2); }
+  tr:last-child td { border-bottom: none; }
+  td code, th code { font-family: var(--mono); }
+  .pill { font-family: var(--mono); font-size: 12.5px; font-weight: 600; padding: 2px 8px; border-radius: 6px; background: var(--surface-2); border: 1px solid var(--line); white-space: nowrap; }
+  .cnt { font-family: var(--mono); color: var(--accent); font-weight: 700; }
+
+  .errs { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 16px; }
+  .errc { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 18px; border-top: 3px solid var(--c); }
+  .errc .ek { font-family: var(--mono); font-size: 12px; font-weight: 700; color: var(--c); letter-spacing: .02em; }
+  .errc .et { font-size: 15.5px; font-weight: 700; margin: 6px 0 8px; }
+  .errc .msg { font-size: 13.5px; color: var(--ink); background: var(--surface-2); border-radius: 8px; padding: 9px 12px; border-left: 3px solid var(--c); }
+  .errc .cause { font-size: 12.8px; color: var(--muted); margin: 10px 0 0; }
+  .errc .ac { font-family: var(--mono); font-size: 11.5px; color: var(--faint); margin-top: 10px; display: inline-block; }
+
+  .api { background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px 22px; }
+  .endpoint { font-family: var(--mono); font-size: 13.5px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .verb { background: var(--ok); color: #fff; font-weight: 700; padding: 2px 9px; border-radius: 6px; font-size: 12px; letter-spacing: .04em; }
+  .url { color: var(--ink); word-break: break-all; }
+  .api ul { margin: 16px 0 0; padding: 0; list-style: none; display: grid; gap: 9px; }
+  .api li { font-size: 13.5px; color: var(--muted); padding-left: 18px; position: relative; }
+  .api li::before { content: ""; position: absolute; left: 2px; top: 9px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); }
+  .api li b { color: var(--ink); font-weight: 700; }
+  .elem-row { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 4px; }
+  .elem { font-family: var(--mono); font-size: 12px; padding: 3px 9px; border-radius: 7px; background: var(--surface-2); border: 1px solid var(--line); color: var(--ink); }
+  .elem span { color: var(--faint); }
+
+  .ac-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 12px; }
+  .ac { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; box-shadow: var(--shadow); padding: 13px 15px; display: grid; grid-template-columns: auto 1fr; gap: 12px; align-items: start; }
+  .ac .id { font-family: var(--mono); font-size: 12px; font-weight: 700; color: #fff; background: var(--accent); border-radius: 6px; padding: 3px 8px; height: fit-content; }
+  .ac.eok .id { background: var(--ok); }
+  .ac.eerr .id { background: var(--err); }
+  .ac .txt { font-size: 13.3px; color: var(--ink); line-height: 1.5; }
+  .ac .txt b { font-weight: 700; }
+
+  footer { margin-top: 60px; padding-top: 22px; border-top: 1px solid var(--line); color: var(--faint); font-size: 12.5px; display: flex; flex-wrap: wrap; gap: 6px 16px; }
+  footer code { font-family: var(--mono); }
+
+  a { color: var(--accent); }
+  :focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 4px; }
+
+  @media (max-width: 560px) {
+    .wrap { padding: 28px 16px 56px; }
+    section { margin-top: 40px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="head">
+    <p class="eyebrow">功能規格 · 平台中立 SSOT</p>
+    <h1>天氣搜尋 WeatherSearch</h1>
+    <p class="lede">輸入城市名稱，串接中央氣象署「一般天氣預報－今明 36 小時天氣預報」，於同一畫面以四種狀態呈現一或多個縣市的預報。同一份規格同時驅動 iOS（MVVM-C）與 Flutter（Bloc）。</p>
+    <div class="meta">
+      <span class="tag v">v1.3</span>
+      <span class="tag"><code>F-C0032-001</code></span>
+      <span class="tag">22 縣市</span>
+      <span class="tag">AC-1 ～ AC-9</span>
+      <span class="tag">iOS + Flutter 行為一致</span>
+    </div>
+  </header>
+
+  <section>
+    <div class="sec-head">
+      <span class="n">01</span>
+      <h2>四種顯示狀態</h2>
+    </div>
+    <div class="states">
+      <div class="state" style="--c: var(--faint)">
+        <div class="st-k">initial</div>
+        <div class="st-t">初始</div>
+        <div class="st-d">尚未搜尋，顯示輸入提示。不呼叫 API。</div>
+      </div>
+      <div class="state" style="--c: var(--warn)">
+        <div class="st-k">loading</div>
+        <div class="st-t">讀取中</div>
+        <div class="st-d">畫面內 inline loading，非 Dialog / 非彈窗。</div>
+      </div>
+      <div class="state" style="--c: var(--ok)">
+        <div class="st-k">loaded</div>
+        <div class="st-t">氣象資料</div>
+        <div class="st-d">一或多個縣市的<b>可收合卡片</b>；展開時 3 時段三欄並排、依天氣上底色。每次搜尋一律收合。</div>
+      </div>
+      <div class="state" style="--c: var(--err)">
+        <div class="st-k">error</div>
+        <div class="st-t">錯誤</div>
+        <div class="st-d">查無城市 / 資料格式錯誤 / 連線失敗，各顯示對應訊息。</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="n">02</span>
+      <h2>三層式泳道 · 搜尋流程</h2>
+      <p>由左至右：畫面 → 邏輯 → 資料。數字為流程順序。</p>
+    </div>
+    <div class="lane-scroll">
+      <div class="swim">
+        <div class="lane-cols">
+          <div class="lane-h view">使用者 · 畫面<small>View / Page</small></div>
+          <div class="lane-h logic">邏輯 · 狀態<small>ViewModel / Cubit</small></div>
+          <div class="lane-h data">資料 · API<small>Repository / CWA</small></div>
+        </div>
+
+        <div class="step">
+          <div class="slot view">
+            <div class="node">
+              <span class="num">1</span>
+              <p class="nt">輸入城市名稱 → 點「確認」</p>
+              <p class="nd">城市名可留空、可為部分名稱（如 <code>台北</code>、<code>新竹</code>）。</p>
+            </div>
+          </div>
+          <div class="slot logic"></div>
+          <div class="slot data"></div>
+        </div>
+
+        <div class="step">
+          <div class="slot view"></div>
+          <div class="slot logic">
+            <div class="node">
+              <span class="num">2</span>
+              <p class="nt">正規化輸入</p>
+              <p class="nd">去除前後空白，並將「台」統一為「臺」。</p>
+            </div>
+          </div>
+          <div class="slot data"></div>
+        </div>
+
+        <div class="step">
+          <div class="slot view"></div>
+          <div class="slot logic">
+            <div class="node">
+              <span class="num">3</span>
+              <p class="nt">輸入解析 · CityNameResolver</p>
+              <p class="nd">以正規化字串比對 22 縣市清單，決定目標縣市。</p>
+              <div class="branches">
+                <span class="br neutral"><b>空</b>→ 全部 22</span>
+                <span class="br ok"><b>唯一前綴</b>→ 補全 1 筆</span>
+                <span class="br ok"><b>多重前綴</b>→ 多筆</span>
+                <span class="br err"><b>無符合</b>→ 查無城市 · 不呼叫 API</span>
+              </div>
+            </div>
+          </div>
+          <div class="slot data"></div>
+        </div>
+
+        <div class="step">
+          <div class="slot view"></div>
+          <div class="slot logic">
+            <div class="node">
+              <span class="num">4</span>
+              <p class="nt">狀態 → 讀取中</p>
+              <p class="nd">顯示區塊切換為 inline loading。</p>
+            </div>
+          </div>
+          <div class="slot data"></div>
+        </div>
+
+        <div class="step">
+          <div class="slot view"></div>
+          <div class="slot logic"></div>
+          <div class="slot data">
+            <div class="node">
+              <span class="num">5</span>
+              <p class="nt">呼叫 CWA API</p>
+              <p class="nd"><b>不帶</b> <code>locationName</code> → 回傳全部縣市。</p>
+              <div class="branches">
+                <span class="br err"><b>網路 / 401 / 5xx</b>→ 連線失敗</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="slot view"></div>
+          <div class="slot logic"></div>
+          <div class="slot data">
+            <div class="node">
+              <span class="num">6</span>
+              <p class="nt">解析所有 location → 縣市預報清單</p>
+              <p class="nd">合併 Wx / PoP / MinT / MaxT / CI 為 3 個時段。</p>
+              <div class="branches">
+                <span class="br err"><b>無法解析 / 缺欄位</b>→ 資料格式不正確</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="step">
+          <div class="slot view"></div>
+          <div class="slot logic">
+            <div class="node">
+              <span class="num">7</span>
+              <p class="nt">依目標縣市過濾</p>
+              <p class="nd">保留步驟 3 決定的縣市；若過濾後為空 → 查無城市。</p>
+            </div>
+          </div>
+          <div class="slot data"></div>
+        </div>
+
+        <div class="step">
+          <div class="slot view">
+            <div class="node">
+              <span class="num">8</span>
+              <p class="nt">顯示結果</p>
+              <p class="nd"><b>氣象資料</b>清單（縣市 × 3 時段）或對應<b>錯誤</b>訊息。</p>
+            </div>
+          </div>
+          <div class="slot logic"></div>
+          <div class="slot data"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="n">03</span>
+      <h2>輸入解析對照</h2>
+      <p>正規化（trim + 台→臺）後以前綴比對。</p>
+    </div>
+    <div class="card tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>使用者輸入</th><th>目標縣市</th><th>結果畫面</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><span class="pill">（空白）</span></td><td>全部 22 縣市</td><td>氣象清單 <span class="cnt">22</span> 筆</td></tr>
+          <tr><td><span class="pill">新北</span> · <span class="pill">台北</span></td><td>新北市 · 臺北市（自動補全）</td><td>氣象清單 <span class="cnt">1</span> 筆</td></tr>
+          <tr><td><span class="pill">新竹</span></td><td>新竹縣 ＋ 新竹市</td><td>氣象清單 <span class="cnt">2</span> 筆</td></tr>
+          <tr><td><span class="pill">嘉義</span></td><td>嘉義縣 ＋ 嘉義市</td><td>氣象清單 <span class="cnt">2</span> 筆</td></tr>
+          <tr><td><span class="pill">臺</span></td><td>臺北市 · 臺中市 · 臺南市 · 臺東縣</td><td>氣象清單 <span class="cnt">4</span> 筆</td></tr>
+          <tr><td><span class="pill">火星市</span></td><td>（無符合）</td><td>錯誤 · 查無此城市</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="n">04</span>
+      <h2>錯誤處理</h2>
+      <p>三種錯誤路徑皆收斂到 inline 錯誤畫面。</p>
+    </div>
+    <div class="errs">
+      <div class="errc" style="--c: var(--err)">
+        <div class="ek">cityNotFound</div>
+        <div class="et">搜尋條件無效</div>
+        <div class="msg">查無此城市，請確認名稱後再試</div>
+        <p class="cause">非空輸入正規化後不符任何有效縣市前綴（如 <span class="inline-code">火星市</span>）。<b>不呼叫 API。</b></p>
+        <span class="ac">↳ AC-5</span>
+      </div>
+      <div class="errc" style="--c: var(--warn)">
+        <div class="ek">invalidData</div>
+        <div class="et">API 資料格式不正確</div>
+        <div class="msg">資料格式不正確，請稍後再試</div>
+        <p class="cause">JSON 無法解析成預期結構，或缺少必要氣象要素 / 時段數不對齊。程式不崩潰。</p>
+        <span class="ac">↳ AC-6</span>
+      </div>
+      <div class="errc" style="--c: var(--accent)">
+        <div class="ek">requestFailed</div>
+        <div class="et">連線 / 伺服器錯誤</div>
+        <div class="msg">連線失敗，請檢查網路或稍後再試</div>
+        <p class="cause">網路中斷、逾時、HTTP 5xx。程式不崩潰。</p>
+        <span class="ac">↳ AC-7</span>
+      </div>
+      <div class="errc" style="--c: var(--err)">
+        <div class="ek">unauthorized</div>
+        <div class="et">授權失敗（HTTP 401，單獨）</div>
+        <div class="msg">授權失敗，請確認 API 授權碼</div>
+        <p class="cause">授權碼無效 / 未帶。與連線失敗<b>分開</b>，方便辨識金鑰問題。程式不崩潰。</p>
+        <span class="ac">↳ AC-10</span>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="n">05</span>
+      <h2>API 端點</h2>
+    </div>
+    <div class="api">
+      <div class="endpoint">
+        <span class="verb">GET</span>
+        <span class="url">https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001</span>
+      </div>
+      <ul>
+        <li><b>Authorization</b>（隱含）— CWA 授權碼，存於 gitignored secrets 檔，不進版控。</li>
+        <li><b>locationName</b> — <b>不帶</b>；省略時回傳全部 22 縣市，縣市過濾由 App 於用戶端進行。</li>
+        <li><b>回應要素</b> — 每縣市 3 個時段，每段合併以下 5 要素：
+          <div class="elem-row">
+            <span class="elem">Wx <span>天氣現象</span></span>
+            <span class="elem">PoP <span>降雨機率</span></span>
+            <span class="elem">MinT <span>最低溫</span></span>
+            <span class="elem">MaxT <span>最高溫</span></span>
+            <span class="elem">CI <span>舒適度</span></span>
+          </div>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="n">06</span>
+      <h2>驗收條件</h2>
+      <p>每條 AC ↔ 兩平台各一個鏡像測試。</p>
+    </div>
+    <div class="ac-grid">
+      <div class="ac"><span class="id">AC-1</span><span class="txt">剛進入畫面 → 呈現<b>初始狀態</b>，未呼叫 API。</span></div>
+      <div class="ac eok"><span class="id">AC-2</span><span class="txt">完整縣市名（<b>臺北市</b>）→ 清單顯示<b>該 1 個縣市</b>，含 3 時段。</span></div>
+      <div class="ac"><span class="id">AC-3</span><span class="txt">搜尋時狀態序列：<b>讀取中</b> → 完成。</span></div>
+      <div class="ac eok"><span class="id">AC-4</span><span class="txt">空白輸入 → 清單顯示<b>全部 22 縣市</b>。</span></div>
+      <div class="ac eerr"><span class="id">AC-5</span><span class="txt">無符合輸入（<b>火星市</b>）→ <b>查無城市</b>，且未呼叫 API。</span></div>
+      <div class="ac eerr"><span class="id">AC-6</span><span class="txt">API 無法解析 / 缺欄位 → <b>資料格式不正確</b>，不崩潰。</span></div>
+      <div class="ac eerr"><span class="id">AC-7</span><span class="txt">請求失敗（網路 / 逾時 / 5xx）→ <b>連線失敗</b>，不崩潰。</span></div>
+      <div class="ac eok"><span class="id">AC-8</span><span class="txt">唯一前綴（<b>台北</b>）→ 自動補全為臺北市，清單 1 筆。</span></div>
+      <div class="ac eok"><span class="id">AC-9</span><span class="txt">多重前綴（<b>新竹</b>）→ 顯示<b>新竹縣 + 新竹市</b>。</span></div>
+      <div class="ac eerr"><span class="id">AC-10</span><span class="txt">HTTP <b>401</b>（授權碼無效）→ <b>授權失敗</b>（與連線失敗分開），不崩潰。</span></div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">
+      <span class="n">07</span>
+      <h2>平台實作對照（v1.2）</h2>
+      <p>行為一致；以下為兩平台實作方式。</p>
+    </div>
+    <div class="card tbl-scroll">
+      <table>
+        <thead>
+          <tr><th>主題</th><th>iOS 原生</th><th>Flutter</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>氣象資料（可收合卡片）</td>
+            <td><code>UICollectionView</code> + Diffable；每縣市一張 <code>WeatherCityCell</code>（靛藍標題列 + 展開三欄 <code>WeatherPeriodColumnView</code>）</td>
+            <td><code>ListView</code> + 卡片 Widget（<code>InkWell</code> 標題列 + <code>IntrinsicHeight</code> 三欄）</td>
+          </tr>
+          <tr>
+            <td>展開狀態</td>
+            <td>存於 <code>WeatherContentView</code>；新搜尋 <code>reconfigureItems</code> 全部收合；主題變更保留</td>
+            <td>存於 <code>WeatherContentWidget</code>（容器）；新搜尋 <code>didUpdateWidget</code> 清空收合；主題變更保留</td>
+          </tr>
+          <tr>
+            <td>顏色 / 字體<br><span class="cnt">design system</span></td>
+            <td><code>DesignSystem/AppColor</code> + <code>AppFont</code></td>
+            <td><code>core/theme/app_colors</code> + <code>app_text_styles</code>（鏡像同一組 token）</td>
+          </tr>
+          <tr>
+            <td>網路層<br><span class="cnt">可注入 client</span></td>
+            <td><code>DataModule/Networking</code>：<code>APIClient</code>(protocol) + <code>URLSessionAPIClient</code> + <code>APIConfiguration</code>；端點 <code>WeatherEndpoint</code></td>
+            <td><code>core/network</code>：<code>ApiClient</code>(abstract) + <code>DioApiClient</code> + <code>ApiConfiguration</code>；端點 <code>WeatherEndpoint</code></td>
+          </tr>
+          <tr>
+            <td>輸入解析</td>
+            <td><code>CityNameResolver</code>（22 縣市 + 前綴補全）</td>
+            <td><code>CityNameResolver</code>（鏡像）</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <footer>
+    <span>來源：<code>shared-spec/WeatherSearch/spec.md</code>（v1.3）</span>
+    <span>端點 <code>F-C0032-001</code></span>
+    <span>iOS MVVM-C + Clean · Flutter Bloc + Clean</span>
+  </footer>
+</div>
+</body>
+</html>
