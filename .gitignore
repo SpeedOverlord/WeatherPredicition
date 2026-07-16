@@ -6,6 +6,8 @@ CLAUDE.md
 ios-native/DerivedData/
 ios-native/Pods/
 ios-native/build/
+ios-native/Packages/.build/
+ios-native/**/.swiftpm/
 ios-native/**/xcuserdata/
 ios-native/*.xcodeproj/project.xcworkspace/xcuserdata/
 

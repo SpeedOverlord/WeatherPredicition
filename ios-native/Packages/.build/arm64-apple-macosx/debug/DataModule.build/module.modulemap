@@ -1,4 +1,0 @@
-module DataModule {
-    header "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/DataModule-Swift.h"
-    requires objc
-}
