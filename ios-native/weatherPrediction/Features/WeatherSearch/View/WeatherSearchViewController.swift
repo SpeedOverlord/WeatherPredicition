@@ -46,7 +46,7 @@ final class WeatherSearchViewController: UIViewController {
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        view.backgroundColor = .systemBackground
+        view.backgroundColor = AppColor.background
         title = "天氣預測"
         setupLayout()
         bindViewModel()

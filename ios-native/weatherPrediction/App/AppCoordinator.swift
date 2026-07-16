@@ -12,10 +12,12 @@ final class AppCoordinator {
     }
 
     func start() {
-        let repository = WeatherRepositoryImpl(
-            baseURL: Environment.weatherBaseURL,
-            apiKey: Environment.cwaAPIKey
+        let configuration = APIConfiguration(
+            baseURL: Environment.apiBaseURL,
+            authorizationKey: Environment.cwaAPIKey
         )
+        // 預設使用 URLSessionAPIClient；若有特殊需求（logging / retry 等），可在此注入自訂 APIClient。
+        let repository = WeatherRepositoryImpl(configuration: configuration)
         let viewModel = WeatherSearchViewModel(repository: repository)
         let viewController = WeatherSearchViewController(viewModel: viewModel)
         let navigationController = UINavigationController(rootViewController: viewController)

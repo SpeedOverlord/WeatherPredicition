@@ -14,13 +14,13 @@ final class WeatherInitialView: UIView {
 
     private func setupLayout() {
         let imageView = UIImageView(image: UIImage(systemName: "magnifyingglass"))
-        imageView.tintColor = .tertiaryLabel
+        imageView.tintColor = AppColor.textTertiary
         imageView.contentMode = .scaleAspectFit
 
         let label = UILabel()
         label.text = "輸入城市名稱並點「確認」查詢天氣"
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.font = AppFont.body
+        label.textColor = AppColor.textSecondary
         label.textAlignment = .center
         label.numberOfLines = 0
 

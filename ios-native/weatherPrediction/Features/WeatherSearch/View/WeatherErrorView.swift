@@ -4,8 +4,8 @@ import UIKit
 final class WeatherErrorView: UIView {
     private let messageLabel: UILabel = {
         let label = UILabel()
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.font = AppFont.body
+        label.textColor = AppColor.textSecondary
         label.textAlignment = .center
         label.numberOfLines = 0
         return label
@@ -27,7 +27,7 @@ final class WeatherErrorView: UIView {
 
     private func setupLayout() {
         let imageView = UIImageView(image: UIImage(systemName: "exclamationmark.triangle"))
-        imageView.tintColor = .systemOrange
+        imageView.tintColor = AppColor.warning
         imageView.contentMode = .scaleAspectFit
 
         let stack = UIStackView(arrangedSubviews: [imageView, messageLabel])

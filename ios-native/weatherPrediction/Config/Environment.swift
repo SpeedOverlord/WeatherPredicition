@@ -7,8 +7,6 @@ enum Environment {
         (Bundle.main.object(forInfoDictionaryKey: "CWA_API_KEY") as? String) ?? ""
     }
 
-    /// F-C0032-001 端點。
-    static let weatherBaseURL = URL(
-        string: "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001"
-    )!
+    /// CWA 開放資料 API 的 base URL（端點路徑由 DataModule 的 WeatherEndpoint 集中管理）。
+    static let apiBaseURL = URL(string: "https://opendata.cwa.gov.tw/api")!
 }

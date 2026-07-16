@@ -1,3 +1,7 @@
+/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIClient.swift
+/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIConfiguration.swift
+/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/URLSessionAPIClient.swift
+/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Endpoint/WeatherEndpoint.swift
 /Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Mapper/WeatherForecastMapper.swift
 /Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Repository/WeatherRepositoryImpl.swift
 /Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/ResponseModel/WeatherForecastResponse.swift

@@ -24,6 +24,22 @@
       "inputs" : [
         {
           "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIClient.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIConfiguration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/URLSessionAPIClient.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Endpoint/WeatherEndpoint.swift"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Mapper/WeatherForecastMapper.swift"
         },
         {
@@ -51,6 +67,10 @@
       "moduleName" : "DataModule",
       "moduleOutputPath" : "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/Modules/DataModule.swiftmodule",
       "objects" : [
+        "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/APIClient.swift.o",
+        "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/APIConfiguration.swift.o",
+        "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/URLSessionAPIClient.swift.o",
+        "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherEndpoint.swift.o",
         "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastMapper.swift.o",
         "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherRepositoryImpl.swift.o",
         "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastResponse.swift.o"
@@ -109,6 +129,22 @@
       "outputs" : [
         {
           "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/APIClient.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/APIConfiguration.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/URLSessionAPIClient.swift.o"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherEndpoint.swift.o"
+        },
+        {
+          "kind" : "file",
           "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/.build/arm64-apple-macosx/debug/DataModule.build/WeatherForecastMapper.swift.o"
         },
         {
@@ -126,6 +162,10 @@
       ],
       "prepareForIndexing" : false,
       "sources" : [
+        "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIClient.swift",
+        "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIConfiguration.swift",
+        "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/URLSessionAPIClient.swift",
+        "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Endpoint/WeatherEndpoint.swift",
         "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Mapper/WeatherForecastMapper.swift",
         "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Repository/WeatherRepositoryImpl.swift",
         "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/ResponseModel/WeatherForecastResponse.swift"
@@ -268,6 +308,10 @@
       "packages",
       "-incremental",
       "-c",
+      "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIClient.swift",
+      "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIConfiguration.swift",
+      "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/URLSessionAPIClient.swift",
+      "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Endpoint/WeatherEndpoint.swift",
       "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Mapper/WeatherForecastMapper.swift",
       "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Repository/WeatherRepositoryImpl.swift",
       "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/ResponseModel/WeatherForecastResponse.swift",
@@ -414,6 +458,22 @@
         {
           "kind" : "virtual",
           "name" : "<sources-file-list>"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIClient.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/APIConfiguration.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/Networking/URLSessionAPIClient.swift"
+        },
+        {
+          "kind" : "file",
+          "name" : "/Users/timchen/weatherPrediction/ios-native/Packages/Sources/DataModule/WeatherSearch/Endpoint/WeatherEndpoint.swift"
         },
         {
           "kind" : "file",

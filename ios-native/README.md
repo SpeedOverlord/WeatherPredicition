@@ -45,24 +45,29 @@ ios-native/
 ├── Packages/                         # 本地 SPM modules（Clean 分層）
 │   └── Sources/
 │       ├── DomainModule/             # WeatherForecastModel / WeatherRepositoryProtocol / WeatherError
-│       └── DataModule/               # WeatherForecastResponse(Decodable) / Mapper / WeatherRepositoryImpl
+│       └── DataModule/
+│           ├── Networking/           # APIClient(protocol) / URLSessionAPIClient / APIConfiguration
+│           └── WeatherSearch/        # ResponseModel / Mapper / WeatherEndpoint / WeatherRepositoryImpl
 └── weatherPrediction/
     ├── App/                          # AppDelegate / SceneDelegate / AppCoordinator（composition root）
     ├── Config/                       # Environment、App.xcconfig、Secrets*.xcconfig
+    ├── DesignSystem/                 # AppColor / AppFont（顏色・字體 tokens）
     └── Features/WeatherSearch/
-        ├── ViewModel/                # WeatherSearchViewModel(@MainActor) + Protocol + State + ErrorMessage
-        └── View/                     # ViewController + 四種狀態 View + 氣象清單（UICollectionView + Diffable）
+        ├── ViewModel/                # WeatherSearchViewModel(@MainActor) + Protocol + State + ErrorMessage + CityNameResolver
+        └── View/                     # ViewController + 四狀態 View + WeatherCityCell（卡片）+ WeatherPeriodColumnView + WeatherStyle
 ```
 
 - **Presentation**：`WeatherSearchViewModel`（`@MainActor`，四狀態以 `@Published` 發佈）；`WeatherSearchViewController` 只認識 `any WeatherSearchViewModelProtocol`，透過 Combine 綁定狀態切換四種子視圖。
-- **氣象資料清單**：`UICollectionView` + `UICollectionViewDiffableDataSource`（snapshot）呈現 3 個時段。
-- **導覽 / DI**：單一畫面、無跨 feature 導覽，`AppCoordinator` 作為唯一 composition root 建立 `WeatherRepositoryImpl` 並注入 ViewModel（依 CLAUDE.md「避免過度設計」，不預先抽 `Coordinating` protocol）。
-- **Clean 分層**：`DomainModule`（純模型 + 介面）←`DataModule`（API 解析 + Repository 實作）；依賴方向單向。
+- **氣象資料清單**：`UICollectionView` + `UICollectionViewDiffableDataSource`；每縣市一張**可收合卡片**（`WeatherCityCell`：靛藍標題列 + 展開時三欄 `WeatherPeriodColumnView`，依天氣上底色）。展開狀態存於 `WeatherContentView`，每次搜尋一律收合。
+- **Design System**：顏色 / 字體集中於 `DesignSystem/AppColor`、`AppFont`，各畫面統一取用。
+- **網路層**：`DataModule/Networking` 的 `APIClient`（protocol）+ 預設 `URLSessionAPIClient` + `APIConfiguration`（baseURL/授權碼）；端點集中於 `WeatherEndpoint`。`WeatherRepositoryImpl` 注入 `APIClient`（可測試 / App 可覆寫）。
+- **導覽 / DI**：單一畫面、無跨 feature 導覽，`AppCoordinator` 作為唯一 composition root 建立 `APIConfiguration` → `WeatherRepositoryImpl` 並注入 ViewModel（依 CLAUDE.md「避免過度設計」，不預先抽 `Coordinating` protocol）。
+- **Clean 分層**：`DomainModule`（純模型 + 介面）←`DataModule`（Networking + API 解析 + Repository 實作）；依賴方向單向。
 - **Swift 6**：strict concurrency，無 `@unchecked Sendable`；單次非同步用 `async/await`，持續狀態用 Combine。
 
 ## 測試
 
-`weatherPredictionTests/WeatherSearch/WeatherSearchViewModelTests.swift`：以 mock repository 驗證 AC-1..AC-8（Swift Testing），與 Flutter 端互為鏡像。
+`weatherPredictionTests/WeatherSearch/WeatherSearchViewModelTests.swift`：以 mock repository 驗證 AC-1..AC-9（Swift Testing），與 Flutter 端互為鏡像。
 
 ## 已實作功能
 

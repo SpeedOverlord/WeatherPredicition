@@ -1,45 +1,29 @@
 import DomainModule
 import Foundation
 
-/// ``WeatherRepositoryProtocol`` 的實作：呼叫 CWA `F-C0032-001`、解析、並將失敗轉為 ``WeatherError``。
-/// 無可變狀態，設計為 stateless（Sendable）。
+/// ``WeatherRepositoryProtocol`` 的實作：透過注入的 ``APIClient`` 取得全部縣市預報、解析，
+/// 並將失敗轉為 ``WeatherError``。網路細節（送出請求、狀態碼）由 client 負責，
+/// 本型別只負責組請求、解碼與領域對應。
 public final class WeatherRepositoryImpl: WeatherRepositoryProtocol {
-    private let baseURL: URL
-    private let apiKey: String
-    private let session: URLSession
+    private let client: APIClient
+    private let configuration: APIConfiguration
 
     /// - Parameters:
-    ///   - baseURL: F-C0032-001 端點。
-    ///   - apiKey: CWA 授權碼（由 App 層從 gitignored 設定讀入後注入）。
-    public init(
-        baseURL: URL = URL(string: "https://opendata.cwa.gov.tw/api/v1/rest/datastore/F-C0032-001")!,
-        apiKey: String,
-        session: URLSession = .shared
-    ) {
-        self.baseURL = baseURL
-        self.apiKey = apiKey
-        self.session = session
+    ///   - configuration: base URL 與授權碼（由 App 層注入）。
+    ///   - client: 網路實作，預設 ``URLSessionAPIClient``；App / 測試可注入自訂或 mock。
+    public init(configuration: APIConfiguration, client: APIClient = URLSessionAPIClient()) {
+        self.configuration = configuration
+        self.client = client
     }
 
     public func fetchAllForecasts() async throws -> [WeatherForecastModel] {
-        // 不帶 locationName → API 回傳全部縣市。
-        var components = URLComponents(url: baseURL, resolvingAgainstBaseURL: false)
-        components?.queryItems = [
-            URLQueryItem(name: "Authorization", value: apiKey),
-        ]
-        guard let url = components?.url else {
-            throw WeatherError.requestFailed
-        }
+        let request = try makeForecastRequest()
 
         let data: Data
-        let response: URLResponse
         do {
-            (data, response) = try await session.data(from: url)
+            data = try await client.data(for: request)
         } catch {
-            throw WeatherError.requestFailed
-        }
-
-        if let http = response as? HTTPURLResponse, !(200..<300).contains(http.statusCode) {
+            // 傳輸 / 非 2xx（含 401、5xx）皆歸為 requestFailed。
             throw WeatherError.requestFailed
         }
 
@@ -51,5 +35,20 @@ public final class WeatherRepositoryImpl: WeatherRepositoryProtocol {
         }
 
         return try decoded.records.location.map { try WeatherForecastMapper.map($0) }
+    }
+
+    /// 組出「不帶 locationName（取回全部縣市）+ 授權碼」的請求。
+    private func makeForecastRequest() throws -> URLRequest {
+        let endpointURL = configuration.baseURL.appendingPathComponent(WeatherEndpoint.thirtySixHourForecast)
+        guard var components = URLComponents(url: endpointURL, resolvingAgainstBaseURL: false) else {
+            throw WeatherError.requestFailed
+        }
+        components.queryItems = [
+            URLQueryItem(name: "Authorization", value: configuration.authorizationKey),
+        ]
+        guard let url = components.url else {
+            throw WeatherError.requestFailed
+        }
+        return URLRequest(url: url)
     }
 }

@@ -26,8 +26,8 @@ final class WeatherLoadingView: UIView {
     private func setupLayout() {
         let label = UILabel()
         label.text = "讀取中…"
-        label.font = .systemFont(ofSize: 16, weight: .regular)
-        label.textColor = .secondaryLabel
+        label.font = AppFont.body
+        label.textColor = AppColor.textSecondary
         label.textAlignment = .center
 
         let stack = UIStackView(arrangedSubviews: [activityIndicator, label])
